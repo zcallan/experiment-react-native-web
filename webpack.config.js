@@ -45,7 +45,25 @@ const imageLoaderConfiguration = {
   }
 };
 
+const styleLoaderConfiguration = {
+  test: /\.css$/,
+  use: [
+    {
+      loader: 'style-loader',
+    },
+    {
+      loader: 'css-loader',
+      options: {
+        modules: true,
+        localIdentName: '[path][local]_[hash:base64:4]',
+      },
+    },
+  ],
+};
+
 module.exports = {
+  context: path.resolve(__dirname, 'src'),
+
   // your web-specific entry file
   entry: path.resolve(__dirname, 'web/index.js'),
 
@@ -53,7 +71,7 @@ module.exports = {
   output: {
     filename: 'bundle.web.js',
     path: path.resolve(__dirname, 'dist'),
-    publicPath: '/'
+    publicPath: '/',
   },
 
   // ...the rest of your config
@@ -61,8 +79,9 @@ module.exports = {
   module: {
     rules: [
       babelLoaderConfiguration,
-      imageLoaderConfiguration
-    ]
+      imageLoaderConfiguration,
+      styleLoaderConfiguration,
+    ],
   },
 
   plugins: [
@@ -71,11 +90,12 @@ module.exports = {
     // wish to include additional optimizations.
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
-      __DEV__: process.env.NODE_ENV !== 'production' || true
+      __DEV__: process.env.NODE_ENV !== 'production' || true,
     }),
     new HtmlWebpackPlugin({
-      template: 'web/index.html',
+      template: '../web/index.html',
     }),
+    new webpack.NamedModulesPlugin(),
   ],
 
   resolve: {
