@@ -1,9 +1,21 @@
 import React from 'react';
-import { Text } from 'react-native';
+import { Button as NativeButton } from 'react-native';
+import { string, func } from 'prop-types';
 
 
-const Button = () => (
-  <Text>Button</Text>
+const Button = ({
+  children = 'Button',
+  onClick,
+}) => (
+  <NativeButton
+    title={children}
+    onPress={onClick}
+  />
 );
+
+Button.propTypes = {
+  children: string,
+  onClick: func.isRequired,
+};
 
 export default Button;

@@ -1,26 +1,25 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { Component } from 'react';
+import { Text, View } from 'react-native';
+import styles from './App.css';
 import { Button } from '../components';
 
-export default class App extends React.Component {
+
+class App extends Component {
+  handleClick = () => {
+    alert( 'hi!' );
+  }
+
   render() {
     return (
-      <View style={styles.container}>
+      <View className={styles.wrapper}>
         <Text>Open up App.js to start working on your app!</Text>
         <Text>Changes you make will automatically reload.</Text>
         <Text>Shake your phone to open the developer menu.</Text>
 
-        <Button />
+        <Button onClick={this.handleClick}>Hello!</Button>
       </View>
     );
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
