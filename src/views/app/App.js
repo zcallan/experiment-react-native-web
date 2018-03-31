@@ -16,7 +16,20 @@ class App extends Component {
         <Text>Changes you make will automatically reload.</Text>
         <Text>Shake your phone to open the developer menu.</Text>
 
-        <Button onClick={this.handleClick}>Hello!</Button>
+        <Button
+          onClick={this.handleClick}
+          color="red"
+        >
+          Red button
+        </Button>
+
+        <Button
+          onClick={this.handleClick}
+          color="red"
+          disabled
+        >
+          Disabled button
+        </Button>
       </View>
     );
   }
