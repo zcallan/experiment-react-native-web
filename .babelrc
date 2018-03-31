@@ -8,9 +8,10 @@
         [
           "react-native-platform-specific-extensions",
           {
-            "extensions": ["css"]
+            "extensions": ["css", "scss"]
           }
-        ]
+        ],
+        "react-native-classname-to-dynamic-style"
       ]
     }
   }

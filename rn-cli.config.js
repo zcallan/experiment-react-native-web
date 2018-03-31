@@ -1,10 +1,8 @@
 module.exports = {
   getTransformModulePath() {
-    return require.resolve( 'react-native-css-transformer' );
+    return require.resolve( './transformer.js' );
   },
   getSourceExts() {
-    return [
-      'css',
-    ];
+    return ['css', 'scss'];
   },
 };

@@ -1,6 +1,6 @@
+import styles from './App.scss';
 import React, { Component } from 'react';
 import { Text, View } from 'react-native';
-import styles from './App.css';
 import { Button } from '../components';
 
 

@@ -19,6 +19,7 @@ const babelLoaderConfiguration = {
     loader: 'babel-loader',
     options: {
       cacheDirectory: true,
+      babelrc: false,
       // Babel configuration (or use .babelrc)
       // This aliases 'react-native' to 'react-native-web' and includes only
       // the modules needed by the app.
@@ -45,8 +46,25 @@ const imageLoaderConfiguration = {
   }
 };
 
-const styleLoaderConfiguration = {
+const cssLoaderConfiguration = {
   test: /\.css$/,
+  use: [
+    {
+      loader: 'style-loader',
+    },
+    {
+      loader: 'css-loader',
+      options: {
+        modules: true,
+        importLoaders: 1,
+        localIdentName: '[path][local]_[hash:base64:4]',
+      },
+    },
+  ],
+};
+
+const sassLoaderConfiguration = {
+  test: /\.scss$/,
   use: [
     {
       loader: 'style-loader',
@@ -57,6 +75,9 @@ const styleLoaderConfiguration = {
         modules: true,
         localIdentName: '[path][local]_[hash:base64:4]',
       },
+    },
+    {
+      loader: 'sass-loader',
     },
   ],
 };
@@ -80,7 +101,8 @@ module.exports = {
     rules: [
       babelLoaderConfiguration,
       imageLoaderConfiguration,
-      styleLoaderConfiguration,
+      cssLoaderConfiguration,
+      sassLoaderConfiguration,
     ],
   },
 
