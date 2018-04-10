@@ -7,7 +7,6 @@ import { string, oneOf, oneOfType, number, object } from 'prop-types';
 const Text = ({
   children,
   color = 'black',
-  className,
   ...restProps
 }) => {
   return (
@@ -20,13 +19,11 @@ const Text = ({
 };
 
 Text.propTypes = {
-  styleName: string,
   children: string,
   color: oneOf(
     ['darkGrey', 'grey', 'white', 'black']
   ),
   margin: number,
-  style: object,
   marginVertical: number,
 };
 

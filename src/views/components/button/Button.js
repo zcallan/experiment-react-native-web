@@ -1,7 +1,7 @@
-import styles from './Button.scss';
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { string, bool, oneOf, func } from 'prop-types';
+import styles from './Button.scss';
 import { Text } from '../index';
 
 
@@ -24,15 +24,10 @@ const Button = ({
       {...restProps}
       disabled={disabled}
       onPress={onClick}
-      className={[
-        styles.wrapper,
-        disabled ? styles.grey : styles[color],
-        disabled && styles.disabled,
-      ].join(' ')}
+      className={[styles.wrapper, disabled ? styles.grey : styles[color]].join( ' ' )}
     >
       <Text
         color={disabled ? 'grey' : textColors[color]}
-        style={styles.text}
       >
         {children}
       </Text>

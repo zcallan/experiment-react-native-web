@@ -1,4 +1,4 @@
-{
+export default {
   "presets": ["babel-preset-expo"],
   "env": {
     "development": {
@@ -11,7 +11,12 @@
             "extensions": ["css", "scss"]
           }
         ],
-        "react-native-classname-to-dynamic-style"
+        "react-native-classname-to-dynamic-style",
+        // ["react-css-modules", {
+        //   context: path.resolve(__dirname, 'src'),
+        //   generateScopedName: '[path][local]_[hash:base64:4]',
+        //   exclude: 'node_modules',
+        // }]
       ]
     }
   }

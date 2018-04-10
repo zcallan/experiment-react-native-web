@@ -25,6 +25,11 @@ const babelLoaderConfiguration = {
       // the modules needed by the app.
       plugins: [
         'react-native-web',
+        // ['react-css-modules', {
+        //   context: path.resolve(__dirname, 'src'),
+        //   generateScopedName: '[path][local]_[hash:base64:4]',
+        //   exclude: 'node_modules',
+        // }],
       ],
       // The 'react-native' preset is recommended to match React Native's packager
       presets: [
