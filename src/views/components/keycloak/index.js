@@ -1,2 +1,2 @@
-export { default as KeycloakConsumer } from './consumer';
+export { default as KeycloakContext } from './context';
 export { default as KeycloakProvider } from './provider';

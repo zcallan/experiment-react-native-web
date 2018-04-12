@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { Home } from '../pages';
-
+import Routing from '../routing';
 
 class App extends Component {
   render() {
-    return <Home />;
+    return <Routing />;
   }
 }
 
