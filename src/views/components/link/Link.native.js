@@ -1,7 +1,7 @@
 import React, { cloneElement } from 'react';
 import { TouchableWithoutFeedback } from 'react-native';
 import { withNavigation } from 'react-navigation';
-import { string, bool, oneOf, func } from 'prop-types';
+import { any, bool, func, string } from 'prop-types';
 
 
 const Link = ({
@@ -14,8 +14,6 @@ const Link = ({
 }) => {
   const handlePress = event => {
     navigation.navigate( href );
-
-    console.log( 'pressed' );
 
     if ( onClick )
       onClick( event );
@@ -33,10 +31,8 @@ const Link = ({
 };
 
 Link.propTypes = {
-  children: string,
-  color: oneOf(
-    ['red', 'blue', 'grey', 'white']
-  ).isRequired,
+  children: any,
+  href: string,
   disabled: bool,
   onClick: func,
 };

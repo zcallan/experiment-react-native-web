@@ -1,14 +1,12 @@
-import styles from './Settings.scss';
 import React, { Component } from 'react';
-import { View } from 'react-native';
-import { Text, Link, Button } from '../../components';
+import { Text, Link, Button, Box } from '../../components';
 import Layout from '../../layout';
 
 class Settings extends Component {
   render() {
     return (
       <Layout>
-        <View className={styles.wrapper}>
+        <Box justifyContent="center" alignItems="center" height="100%">
           <Text>Settings</Text>
 
           <Link href="home">
@@ -16,7 +14,7 @@ class Settings extends Component {
               Home
             </Button>
           </Link>
-        </View>
+        </Box>
       </Layout>
     );
   }

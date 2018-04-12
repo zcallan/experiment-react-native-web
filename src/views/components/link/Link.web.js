@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link as ReactRouterLink } from 'react-router-dom';
-import { string, bool, oneOf, func } from 'prop-types';
+import { string, bool, any, func } from 'prop-types';
 import styles from './Link.web.css';
 
 
@@ -26,7 +26,7 @@ const Link = ({
 };
 
 Link.propTypes = {
-  children: string,
+  children: any,
   href: string,
   disabled: bool,
   onClick: func,
