@@ -9,7 +9,8 @@ const Button = ({
   children = 'Button',
   color = 'blue',
   disabled,
-  onClick,
+  onClick = onPress,
+  onPress,
   ...restProps
 }) => {
   const textColors = {
@@ -23,8 +24,8 @@ const Button = ({
     <TouchableOpacity
       {...restProps}
       disabled={disabled}
-      onPress={onClick}
-      className={styles.wrapper}
+      onPress={onPress}
+      className={[styles.wrapper, styles[color]].join( ' ' )}
     >
       <Text
         color={disabled ? 'grey' : textColors[color]}

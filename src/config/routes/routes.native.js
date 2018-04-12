@@ -1,7 +1,10 @@
 import * as Pages from '../../views/pages';
 
 export default {
-  Home: {
+  home: {
     screen: Pages.Home,
+  },
+  settings: {
+    screen: Pages.Settings,
   },
 };

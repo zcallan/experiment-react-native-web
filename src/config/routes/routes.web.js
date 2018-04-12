@@ -6,4 +6,8 @@ export default [
     component: Pages.Home,
     exact: true,
   },
+  {
+    path: '/settings',
+    component: Pages.Settings,
+  },
 ];

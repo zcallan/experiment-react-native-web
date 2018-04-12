@@ -1,20 +1,19 @@
-import styles from './Home.scss';
+import styles from './Settings.scss';
 import React, { Component } from 'react';
 import { View } from 'react-native';
-import { Text, Button, Link } from '../../components';
+import { Text, Link, Button } from '../../components';
 import Layout from '../../layout';
 
-class Home extends Component {
+class Settings extends Component {
   render() {
-    console.log( 'render' );
     return (
       <Layout>
         <View className={styles.wrapper}>
-          <Text>Home</Text>
+          <Text>Settings</Text>
 
-          <Link href="settings">
+          <Link href="home">
             <Button color="red">
-              Settings
+              Home
             </Button>
           </Link>
         </View>
@@ -23,4 +22,4 @@ class Home extends Component {
   }
 }
 
-export default Home;
+export default Settings;
