@@ -1,4 +1,4 @@
-import styles from './Text.scss';
+import styles from './Text.css';
 import React from 'react';
 import { Text as NativeText } from 'react-native';
 import { string, oneOf, oneOfType, number, object } from 'prop-types';

@@ -1,0 +1,17 @@
+{
+  "presets": ["babel-preset-expo"],
+  "env": {
+    "development": {
+      "plugins": [
+        "transform-react-jsx-source",
+        "react-native-classname-to-dynamic-style",
+        [
+          "react-native-platform-specific-extensions",
+          {
+            "extensions": ["css", "scss"]
+          }
+        ]
+      ]
+    }
+  }
+}

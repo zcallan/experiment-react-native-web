@@ -5,9 +5,11 @@ const cssTransformer = require('react-native-css-transformer');
 module.exports.transform = function({ src, filename, options }) {
   if (filename.endsWith(".scss")) {
     return sassTransformer.transform({ src, filename, options });
-  } else if (filename.endsWith(".css")) {
+  }
+  else if (filename.endsWith(".css")) {
     return cssTransformer.transform({ src, filename, options });
-  } else {
+  }
+  else {
     return upstreamTransformer.transform({ src, filename, options });
   }
 };
