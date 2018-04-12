@@ -1,1 +1,1 @@
-export { default } from './views/app';
+export { default } from './Root';

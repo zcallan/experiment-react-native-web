@@ -1,37 +1,10 @@
-import styles from './App.scss';
 import React, { Component } from 'react';
-import { Text, View } from 'react-native';
-import { Button } from '../components';
+import { Home } from '../pages';
 
 
 class App extends Component {
-  handleClick = () => {
-    alert( 'hi!' );
-  }
-
   render() {
-    return (
-      <View className={styles.wrapper}>
-        <Text>Open up App.js to start working on your app!</Text>
-        <Text>Changes you make will automatically reload.</Text>
-        <Text>Shake your phone to open the developer menu.</Text>
-
-        <Button
-          onClick={this.handleClick}
-          color="red"
-        >
-          Red button
-        </Button>
-
-        <Button
-          onClick={this.handleClick}
-          color="red"
-          disabled
-        >
-          Disabled button
-        </Button>
-      </View>
-    );
+    return <Home />;
   }
 }
 
