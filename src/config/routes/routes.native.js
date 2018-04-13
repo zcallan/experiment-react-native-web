@@ -10,4 +10,7 @@ export default {
   login: {
     screen: Pages.Login,
   },
+  callback: {
+    screen: Pages.Callback,
+  },
 };

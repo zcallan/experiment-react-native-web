@@ -25,6 +25,11 @@ const babelLoaderConfiguration = {
       // the modules needed by the app.
       plugins: [
         'react-native-web',
+        'transform-async-to-generator',
+        ['transform-runtime', {
+          polyfill: false,
+          regenerator: true,
+        }],
         // ['react-css-modules', {
         //   context: path.resolve(__dirname, 'src'),
         //   generateScopedName: '[path][local]_[hash:base64:4]',

@@ -1,9 +1,14 @@
 import React from 'react';
 import App from './views/app';
 import { KeycloakProvider } from './views/components';
+import config from './config';
 
 const Root = () => (
-  <KeycloakProvider>
+  <KeycloakProvider
+    baseUrl={config.keycloak.baseUrl}
+    realm={config.keycloak.realm}
+    clientId={config.keycloak.clientId}
+  >
     <App />
   </KeycloakProvider>
 );
