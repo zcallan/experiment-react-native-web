@@ -74,7 +74,7 @@ class KeycloakProvider extends Component {
   }
 
   attemptRegister = () => {
-    if ( !this.state.isAuthenticated ) return;
+    if ( this.state.isAuthenticated ) return;
 
     const registerUrl = this.createRegisterUrl();
     
@@ -89,7 +89,7 @@ class KeycloakProvider extends Component {
     });
   }
 
-  attemptLogout = async () => {
+  attemptLogout = () => {
     if ( !this.state.isAuthenticated ) return;
 
     return new Promise(( resolve ) => {

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Text, Button, Link, Box, KeycloakConsumer } from '../../components';
 import Layout from '../../layout';
 
@@ -18,11 +18,19 @@ class Home extends Component {
                   </Button>
                 </Link>
               ) : (
-                <Link href="login">
-                  <Button color="red">
-                    Login
-                  </Button>
-                </Link>
+                <Fragment>
+                  <Link href="login">
+                    <Button color="red">
+                      Login
+                    </Button>
+                  </Link>
+
+                  <Link href="register">
+                    <Button color="white">
+                      Register
+                    </Button>
+                  </Link>
+                </Fragment>
               )}
             </Box>
           </Layout>
