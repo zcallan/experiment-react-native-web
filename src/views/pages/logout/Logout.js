@@ -2,21 +2,21 @@ import React, { Component } from 'react';
 import { Text, Button, Link, Box, KeycloakConsumer, Redirect } from '../../components';
 import Layout from '../../layout';
 
-class Login extends Component {
+class Logout extends Component {
   componentDidMount() {
-    this.props.keycloak.attemptLogin();
+    this.props.keycloak.attemptLogout();
   }
 
   render() {
     const { isAuthenticated } = this.props.keycloak;
 
-    if ( isAuthenticated )
+    if ( !isAuthenticated )
       return <Redirect to="home" />;
 
     return (
       <Layout>
         <Box justifyContent="center" alignItems="center" height="100%">
-          <Text>Logging you in...</Text>
+          <Text>Logging you out...</Text>
         </Box>
       </Layout>
     );
@@ -26,7 +26,7 @@ class Login extends Component {
 export default props => (
   <KeycloakConsumer>
     {keycloak => (
-      <Login {...props} keycloak={keycloak} />
+      <Logout {...props} keycloak={keycloak} />
     )}
   </KeycloakConsumer>
 );

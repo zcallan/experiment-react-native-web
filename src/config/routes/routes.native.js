@@ -10,4 +10,10 @@ export default {
   login: {
     screen: Pages.Login,
   },
+  register: {
+    screen: Pages.Register,
+  },
+  logout: {
+    screen: Pages.Logout,
+  },
 };
