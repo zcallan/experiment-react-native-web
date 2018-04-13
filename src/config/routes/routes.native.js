@@ -7,4 +7,7 @@ export default {
   settings: {
     screen: Pages.Settings,
   },
+  login: {
+    screen: Pages.Login,
+  },
 };

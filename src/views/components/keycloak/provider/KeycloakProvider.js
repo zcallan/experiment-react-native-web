@@ -7,11 +7,14 @@ class KeycloakProvider extends Component {
   }
 
   authAttempt = () => {
-    console.log( 'attempting auth...' );
+    if ( this.state.authenticated ) return;
+
+    this.setState({ authenticating: true });
   }
 
   state = {
-    authenticated: false,
+    authenticating: false,
+    authenticated: true,
     token: null,
     error: null,
     authSuccess: this.authSuccess,

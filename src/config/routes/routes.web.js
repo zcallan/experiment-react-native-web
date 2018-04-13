@@ -10,4 +10,8 @@ export default [
     path: '/settings',
     component: Pages.Settings,
   },
+  {
+    path: '/login',
+    component: Pages.Login,
+  },
 ];

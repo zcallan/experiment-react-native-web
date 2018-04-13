@@ -9,9 +9,9 @@ class Home extends Component {
         <Box justifyContent="center" alignItems="center" height="100%">
           <Text>Home</Text>
 
-          <Link href="settings">
+          <Link href="login">
             <Button color="red">
-              Settings
+              Login
             </Button>
           </Link>
         </Box>
