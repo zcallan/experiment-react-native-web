@@ -4,14 +4,21 @@ import Layout from '../../layout';
 
 class Register extends Component {
   componentDidMount() {
+    this.doRegister();
+  }
+
+  doRegister() {
     this.props.keycloak.attemptRegister();
   }
 
   render() {
-    const { isAuthenticated } = this.props.keycloak;
+    const { isAuthenticated, error } = this.props.keycloak;
 
     if ( isAuthenticated )
       return <Redirect to="home" />;
+
+    if ( error )
+      return <Text>{error}</Text>;
 
     return (
       <Layout>

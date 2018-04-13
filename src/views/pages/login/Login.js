@@ -4,14 +4,21 @@ import Layout from '../../layout';
 
 class Login extends Component {
   componentDidMount() {
+    this.doLogin();
+  }
+
+  doLogin() {
     this.props.keycloak.attemptLogin();
   }
 
   render() {
-    const { isAuthenticated } = this.props.keycloak;
+    const { isAuthenticated, error } = this.props.keycloak;
 
     if ( isAuthenticated )
       return <Redirect to="home" />;
+
+    if ( error )
+      return <Text>{error}</Text>;
 
     return (
       <Layout>

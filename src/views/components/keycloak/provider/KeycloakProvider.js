@@ -62,11 +62,16 @@ class KeycloakProvider extends Component {
 
     const loginUrl = this.createLoginUrl();
     
-    this.setState({ isAuthenticating: true });
+    this.setState({
+      isAuthenticating: true,
+      error: null,
+    });
 
     Linking.addEventListener( 'url', this.handleUrlChange );
 
-    WebBrowser.openAuthSessionAsync( loginUrl );
+    WebBrowser
+      .openAuthSessionAsync( loginUrl )
+      .then( this.handleFinishBrowserSession( 'login' ));
 
     return new Promise(( resolve, reject ) => {
       this.setState({ promise: { resolve, reject }});
@@ -78,11 +83,16 @@ class KeycloakProvider extends Component {
 
     const registerUrl = this.createRegisterUrl();
     
-    this.setState({ isRegistering: true });
+    this.setState({
+      isRegistering: true,
+      error: null,
+    });
 
     Linking.addEventListener( 'url', this.handleUrlChange );
 
-    WebBrowser.openAuthSessionAsync( registerUrl );
+    WebBrowser
+      .openAuthSessionAsync( registerUrl )
+      .then( this.handleFinishBrowserSession( 'register' ));
 
     return new Promise(( resolve, reject ) => {
       this.setState({ promise: { resolve, reject }});
@@ -125,6 +135,19 @@ class KeycloakProvider extends Component {
     this.setState({
       refreshTimer: setInterval( this.handleTokenRefresh, 30000 ), // 30 seconds
     });
+  }
+
+  handleFinishBrowserSession = action => ({ type }) => {
+    const { promise } = this.state;
+
+    if ( type === 'cancel' ) {
+      if ( promise )
+        promise.reject( `Could not ${action}! User dismissed window - try again.` );
+
+      this.setState({
+        error: `Could not ${action}! User dismissed window - try again.`,
+      });
+    }
   }
 
   handleTokenRefresh = async () => {
