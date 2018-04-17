@@ -6,7 +6,7 @@ class Home extends Component {
   render() {
     return (
       <KeycloakConsumer>
-        {({ isAuthenticated }) => (
+        {({ isAuthenticated, accessToken, refreshToken }) => (
           <Layout>
             <Box justifyContent="center" alignItems="center" height="100%">
               <Text>Home</Text>
@@ -32,6 +32,9 @@ class Home extends Component {
                   </Link>
                 </Fragment>
               )}
+
+              <Text>{accessToken || 'No access token'}</Text>
+              <Text>{refreshToken || 'No refresh token'}</Text>
             </Box>
           </Layout>
         )}

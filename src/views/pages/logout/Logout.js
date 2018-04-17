@@ -6,7 +6,7 @@ class Logout extends Component {
   componentDidMount() {
     this.doLogout();
   }
-  
+
   doLogout() {
     this.props.keycloak.attemptLogout();
   }
@@ -14,11 +14,8 @@ class Logout extends Component {
   render() {
     const { isAuthenticated, error } = this.props.keycloak;
 
-    if ( !isAuthenticated )
-      return <Redirect to="home" />;
-
     if ( error )
-      return <Text>{error}</Text>;
+      return <Text>An error has occurred!</Text>;
 
     return (
       <Layout>

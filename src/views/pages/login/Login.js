@@ -18,7 +18,7 @@ class Login extends Component {
       return <Redirect to="home" />;
 
     if ( error )
-      return <Text>{error}</Text>;
+      return <Text>An error has occurred!</Text>;
 
     return (
       <Layout>

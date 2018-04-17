@@ -14,4 +14,12 @@ export default [
     path: '/login',
     component: Pages.Login,
   },
+  {
+    path: '/logout',
+    component: Pages.Logout,
+  },
+  {
+    path: '/register',
+    component: Pages.Register,
+  },
 ];

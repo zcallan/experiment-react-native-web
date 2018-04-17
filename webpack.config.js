@@ -137,7 +137,7 @@ module.exports = {
     extensions: [ '.web.js', '.js' ],
   },
 
-  devtool: 'inline-source-map',
+  devtool: 'eval',
 
   devServer: {
     port: process.env.PORT || 3000,

@@ -3,7 +3,9 @@ import Routing from '../routing';
 
 class App extends Component {
   render() {
-    return <Routing />;
+    return (
+      <Routing />
+    );
   }
 }
 

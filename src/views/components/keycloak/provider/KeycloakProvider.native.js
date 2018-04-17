@@ -29,8 +29,8 @@ class KeycloakProvider extends Component {
       response_type, redirect_uri, client_id, state,
     });
 
-    this.setState({ sessionState: uniqueIdentifier });
-    
+    this.setState({ [`${action}State`]: uniqueIdentifier });
+
     return `${realmUrl}/protocol/openid-connect/${action}?${stringifiedQuery}`;
   }
 
@@ -107,7 +107,9 @@ class KeycloakProvider extends Component {
         isAuthenticated: false,
         token: null,
         refreshToken: null,
-        sessionState: null,
+        authState: '',
+        registrationsState: '',
+        tokenState: '',
       }, resolve );
     });
   }
@@ -118,7 +120,9 @@ class KeycloakProvider extends Component {
     isRegistering: false,
     accessToken: null,
     refreshToken: null,    
-    sessionState: null,    
+    authState: '',
+    registrationsState: '',
+    tokenState: '',
     error: null,
     attemptLogin: this.attemptLogin,
     attemptRegister: this.attemptRegister,
@@ -127,6 +131,10 @@ class KeycloakProvider extends Component {
 
   componentWillUnmount() {
     Linking.removeEventListener( 'url', this.handleUrlChange );
+  }
+
+  asyncSetState = state => {
+    return new Promise( resolve => this.setState( state, resolve ));
   }
 
   startTokenRefresh() {
@@ -157,7 +165,7 @@ class KeycloakProvider extends Component {
     const { refreshToken, sessionState } = this.state;
     const { clientId } = this.props;
 
-    this.setState({ sessionState: uniqueIdentifier });
+    await this.asyncSetState({ tokenState: uniqueIdentifier });
 
     const options = {
       method: 'POST',
@@ -173,30 +181,28 @@ class KeycloakProvider extends Component {
       }),
     };
 
-    const response = await fetch( url, options );
-    const responseJson = await response.json();
-
-    if (
-      responseJson &&
-      responseJson.token &&
-      responseJson.session_state &&
-      responseJson.session_state === sessionState
-    ) {
+    try {
+      const response = await fetch( url, options );
+      const responseJson = await response.json();
+  
       this.handleTokenRefreshSuccess( responseJson );
     }
-    else {
-      this.handleError( responseJson );
+    catch ( error ) {
+      this.handleError( error );
     }
   }
 
-  handleTokenRefreshSuccess = ({ access_token, refresh_token }) => {
+  handleTokenRefreshSuccess = ({ access_token, refresh_token, id_token }) => {
     this.setState({
       refreshToken: refresh_token,
       accessToken: access_token,
+      idToken: id_token,
     });
   }
 
   handleError = error => {
+    console.error( 'error', { error });
+
     this.setState({ error });
 
     if ( this.state.promise ) {
@@ -221,19 +227,19 @@ class KeycloakProvider extends Component {
   }
 
   handleUrlDecoding = url => {
-    const { sessionState } = this.state;
+    const { authState } = this.state;
     const { query } = queryString.parseUrl( url );
 
     if (
       query &&
       query.state &&
-      query.state === sessionState &&
+      query.state === authState &&
       query.code
     ) {
       this.handleAuthSuccess( query.code );
     }
     else {
-      this.handleError( 'Unable to decode keycloak URL after returning from auth screen.' );
+      this.handleError( 'Unable to decode keycloak URL after returning from auth screen.', { query, authState });
     }
   }
 
