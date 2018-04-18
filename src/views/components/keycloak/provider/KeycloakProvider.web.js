@@ -28,7 +28,9 @@ class KeycloakProvider extends Component {
   attemptRegister = () => {
     if ( this.state.isAuthenticated ) return;
 
-    const registerUrl = this.createRegisterUrl();
+    const LoginUrl = this.createRegisterUrl();
+
+    LoginUrl.open();
 
     this.setState({
       isRegistering: true,
@@ -59,9 +61,9 @@ class KeycloakProvider extends Component {
       error: null,
     });
 
-    localStorage.removeItem( 'kcSessionState' );
-    localStorage.removeItem( 'kcSessionNonce' );
-    localStorage.removeItem( 'kcAuth' );
+    Storage.remove( 'kcSessionState' );
+    Storage.remove( 'kcSessionNonce' );
+    Storage.remove( 'kcAuth' );
 
     window.location.href = logoutUrl;
 
@@ -101,10 +103,21 @@ class KeycloakProvider extends Component {
   }
 
   checkForExistingState = async () => {
-    const session = localStorage.getItem( 'kcAuth' );
-
     try {
-      const { state, nonce, accessToken, refreshToken, accessTokenExpiresOn, refreshTokenExpiresOn } = JSON.parse( session );
+      const session = await Storage.getAndParse( 'kcAuth' );
+
+      if ( !session )
+        return;
+
+      const {
+        state,
+        nonce,
+        accessToken,
+        refreshToken,
+        accessTokenExpiresOn,
+        refreshTokenExpiresOn,
+      } = session;
+
       const accessTokenHasExpired = this.hasTokenExpired( accessTokenExpiresOn );
       const refreshTokenHasExpired = this.hasTokenExpired( refreshTokenExpiresOn );
 
@@ -122,11 +135,11 @@ class KeycloakProvider extends Component {
 
       resolve();
     }
-    catch ( e ) {}
+    catch ( e ) {} // We don't care if there is an error
   }
 
-  checkForCallback() {
-    const sessionState = localStorage.getItem( 'kcSessionState' );
+  checkForCallback = async () => {
+    const sessionState = await Storage.get( 'kcSessionState' );
     const { state, code, ...restQuery } = queryString.parse( location.search );
     const numberOfRestQueries = restQuery ? Object.keys( restQuery ).length : 0;
 
@@ -134,11 +147,15 @@ class KeycloakProvider extends Component {
     if ( !state ) return;
     if ( !code ) return;
 
-    /* Remove `state` and `code` from location.search. */
-    if ( numberOfRestQueries.length > 0 )
-      history.replaceState({}, null, `${location.pathname}?${queryString.stringify( restQuery )}` );
-    else
-      history.replaceState({}, null, location.pathname );
+    if ( Platform.OS === 'web' ) {
+      /* Remove `state` and `code` from the URL query params. */
+      let newUrl = location.pathname;
+
+      if ( numberOfRestQueries.length > 0 )
+        newUrl += `?${queryString.stringify( restQuery )}`;
+
+      history.replaceState({}, null, newUrl );
+    }
 
     /* Ensure the sessions are aligned. */
     if ( sessionState === state )
@@ -186,8 +203,8 @@ class KeycloakProvider extends Component {
       nonce: sessionNonce,
     });
 
-    localStorage.setItem( 'kcSessionState', sessionState );
-    localStorage.setItem( 'kcSessionNonce', sessionNonce );
+    Storage.set( 'kcSessionState', sessionState );
+    Storage.set( 'kcSessionNonce', sessionNonce );
 
     return `${realmUrl}/protocol/openid-connect/${action}?${stringifiedQuery}`;
   }
@@ -290,16 +307,17 @@ class KeycloakProvider extends Component {
       const responseJson = await response.json();
 
       const { session_state } = responseJson;
-      const sessionState = localStorage.getItem( 'kcSessionState' );
+      const sessionState = await Storage.get( 'kcSessionState' );
 
       /* TODO fix check */
       // if ( session_state === sessionState )
         this.handleTokenRefreshSuccess( responseJson );
     }
     catch ( error ) {
-      this.setState({ isFetchingToken: false });
-
       this.handleError( error );
+    }
+    finally {
+      this.setState({ isFetchingToken: false });
     }
   }
 
@@ -314,21 +332,18 @@ class KeycloakProvider extends Component {
       accessToken: access_token,
       accessTokenExpiresOn: currentTime + accessExpiresInSeconds,
       idToken: id_token,
-      isFetchingToken: false,
     });
 
-    localStorage.setItem( 'kcAuth', JSON.stringify({
+    Storage.stringifyAndSet( 'kcAuth', {
       refreshToken: this.state.refreshToken,
       refreshTokenExpiresOn: this.state.refreshTokenExpiresOn,
       accessToken: this.state.accessToken,
       accessTokenExpiresOn: this.state.accessTokenExpiresOn,
       timestamp: new Date().getTime(),
-    }));
+    });
   }
 
   handleError = error => {
-    console.error( 'error', error );
-
     this.setState({ error });
 
     if ( this.state.promise ) {
