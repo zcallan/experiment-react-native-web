@@ -13,7 +13,7 @@ const babelLoaderConfiguration = {
   include: [
     path.resolve(__dirname, 'web/index.js'),
     path.resolve(__dirname, 'src'),
-    path.resolve(__dirname, 'node_modules/react-native-uncompiled')
+    path.resolve(__dirname, 'node_modules/react-native-uncompiled'),
   ],
   use: {
     loader: 'babel-loader',

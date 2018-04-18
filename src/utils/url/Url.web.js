@@ -4,8 +4,8 @@ class Url {
   }
 
   /* Mock functions */
-  addEventListener() {}
-  removeEventListener() {}
+  addEventListener() { return this }
+  removeEventListener() { return this }
   close() {}
 
   open( options = {}) {
@@ -21,6 +21,8 @@ class Url {
 
   append( string ) {
     this.url += string;
+
+    return this;
   }
 }
 

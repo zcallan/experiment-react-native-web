@@ -3,9 +3,9 @@ import { Platform } from 'react-native';
 import { string } from 'prop-types';
 import queryString from 'query-string';
 import uuid from 'uuid/v4';
-import keycloak from './keycloak';
 import KeycloakContext from '../context';
 import { Url, Storage } from '../../../../utils';
+import * as keycloakUtils from '../../../../utils/keycloak';
 
 class KeycloakProvider extends Component {
   attemptLogin = () => {
@@ -13,11 +13,14 @@ class KeycloakProvider extends Component {
 
     const LoginUrl = this.createLoginUrl();
 
-    LoginUrl.open();
+    LoginUrl
+      .addEventListener( 'url', this.handleUrlChange )
+      .open();
 
     this.setState({
       isAuthenticating: true,
       error: null,
+      browserSession: LoginUrl,
     });
 
     return new Promise(( resolve, reject ) => {
@@ -28,16 +31,17 @@ class KeycloakProvider extends Component {
   attemptRegister = () => {
     if ( this.state.isAuthenticated ) return;
 
-    const LoginUrl = this.createRegisterUrl();
+    const RegisterUrl = this.createRegisterUrl();
 
-    LoginUrl.open();
+    RegisterUrl
+      .addEventListener( 'url', this.handleUrlChange )
+      .open();
 
     this.setState({
       isRegistering: true,
       error: null,
+      browserSession: LoginUrl,
     });
-
-    window.location.href = registerUrl;
 
     return new Promise(( resolve, reject ) => {
       this.setState({ promise: { resolve, reject }});
@@ -47,25 +51,27 @@ class KeycloakProvider extends Component {
   attemptLogout = async () => {
     if ( !this.state.isAuthenticated ) return;
 
-    const logoutUrl = this.createLogoutUrl();
+    const LogoutUrl = this.createLogoutUrl();
 
     if ( this.state.refreshTimer )
       clearInterval( this.state.refreshTimer );
 
-    await this.asyncSetState({
-      isAuthenticated: false,
-      accessToken: null,
-      refreshToken: null,
-      sessionState: null,
-      sessionNonce: null,
-      error: null,
-    });
+    /* Make sure to wait for each of these functions to finish. */
+    await Promise.all([
+      Storage.remove( 'kcSessionState' ),
+      Storage.remove( 'kcSessionNonce' ),
+      Storage.remove( 'kcAuth' ),
+      this.asyncSetState({
+        isAuthenticated: false,
+        accessToken: null,
+        refreshToken: null,
+        sessionState: null,
+        sessionNonce: null,
+        error: null,
+      }),
+    ]);
 
-    Storage.remove( 'kcSessionState' );
-    Storage.remove( 'kcSessionNonce' );
-    Storage.remove( 'kcAuth' );
-
-    window.location.href = logoutUrl;
+    LogoutUrl.open();
 
     return new Promise(( resolve, reject ) => {
       this.setState({ promise: { resolve, reject }});
@@ -139,6 +145,9 @@ class KeycloakProvider extends Component {
   }
 
   checkForCallback = async () => {
+    /* Only perform this on the web. */
+    if ( Platform.OS !== 'web' ) return;
+
     const sessionState = await Storage.get( 'kcSessionState' );
     const { state, code, ...restQuery } = queryString.parse( location.search );
     const numberOfRestQueries = restQuery ? Object.keys( restQuery ).length : 0;
@@ -162,18 +171,6 @@ class KeycloakProvider extends Component {
       this.handleAuthSuccess( code );
   }
 
-  getValidRedirectUri() {
-     if (
-      location.pathname === '/login' ||
-      location.pathname === '/register' ||
-      location.pathname === '/logout'
-    ) {
-      return `${location.protocol}//${location.host}${location.search}`
-    }
-
-    return location.href;
-  }
-
   createRealmUrl() {
     const { baseUrl, realm } = this.props;
     const encodedRealm = encodeURIComponent( realm );
@@ -183,7 +180,7 @@ class KeycloakProvider extends Component {
 
   createActionUrl = ( action, query = {}) => {
     const realmUrl = this.createRealmUrl();
-    const redirectUri = this.getValidRedirectUri();
+    const redirectUri = keycloakUtils.getValidRedirectUri();
     const sessionState = uuid();
     const sessionNonce = uuid();
 
@@ -223,7 +220,7 @@ class KeycloakProvider extends Component {
 
   createLogoutUrl = options => {
     const realmUrl = this.createRealmUrl();
-    const redirectUri = this.getValidRedirectUri();
+    const redirectUri = keycloakUtils.getValidRedirectUri();
 
     const query = queryString.stringify({
       redirect_uri: redirectUri,
@@ -277,7 +274,7 @@ class KeycloakProvider extends Component {
     const url = `${realmUrl}/protocol/openid-connect/token`;
     const { authCode, refreshToken } = this.state;
     const { clientId } = this.props;
-    const redirectUrl = `${location.protocol}//${location.host}`;
+    const redirectUrl = keycloakUtils.getValidRedirectUri({ excludeSearch: true });
 
     const grantType = code
       ? 'authorization_code'
@@ -314,6 +311,8 @@ class KeycloakProvider extends Component {
         this.handleTokenRefreshSuccess( responseJson );
     }
     catch ( error ) {
+      console.error( error );
+
       this.handleError( error );
     }
     finally {
@@ -374,6 +373,39 @@ class KeycloakProvider extends Component {
     const currentTime = new Date().getTime();
 
     return currentTime > expiresOn;
+  }
+
+  handleUrlChange = event => {
+    const { url } = event;
+    const { browserSession } = this.state;
+    const appUrl = keycloakUtils.getValidRedirectUri();
+
+    if ( url.startsWith( appUrl )) {
+      if ( browserSession ) {
+        browserSession
+          .removeEventListener( 'url', this.handleUrlChange )
+          .close();
+      }
+
+      this.handleUrlDecoding( url );
+    }
+  }
+
+  handleUrlDecoding = async url => {
+    const sessionState = await Storage.get( 'kcSessionState' );
+    const { query } = queryString.parseUrl( url );
+
+    if (
+      query &&
+      query.state &&
+      query.state === sessionState &&
+      query.code
+    ) {
+      this.handleAuthSuccess( query.code );
+    }
+    else {
+      this.handleError( 'Unable to decode keycloak URL after returning from auth screen.', { query, sessionState });
+    }
   }
 
   render() {

@@ -8,10 +8,14 @@ class Url {
 
   addEventListener( event, callback ) {
     Linking.addEventListener( event, callback );
+
+    return this;
   }
 
   removeEventListener( event, callback ) {
     Linking.removeEventListener( event, callback );
+
+    return this;
   }
 
   open() {
@@ -24,6 +28,8 @@ class Url {
 
   append( string ) {
     this.url += string;
+
+    return this;
   }
 }
 

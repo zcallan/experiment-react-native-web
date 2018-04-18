@@ -19,7 +19,7 @@ class Storage {
         return reject( 'Argument 0 passed to `Storage.set( key, value )` is either `null` or `undefined`.' );
 
       AsyncStorage
-        .setItem( key )
+        .setItem( key, value )
         .then( resolve )
         .catch( reject );
     });
@@ -37,8 +37,8 @@ class Storage {
     });
   }
 
-  getAndParse = async key => {
-    return new Promise(( resolve, reject ) => {
+  getAndParse = key => {
+    return new Promise( async ( resolve, reject ) => {
       if ( key == null )
         return reject( 'Argument passed to `Storage.getAndParse( key )` is either `null` or `undefined`.' );
 
@@ -59,10 +59,10 @@ class Storage {
       if ( key == null )
         return reject( 'Argument 0 passed to `Storage.stringifyAndSet( key, value )` is either `null` or `undefined`.' );
 
-        const stringified = JSON.stringify( value );
+        const stringifiedValue = JSON.stringify( value );
 
         AsyncStorage
-          .setItem( key )
+          .setItem( key, stringifiedValue )
           .then( resolve )
           .catch( reject )
     });
