@@ -1,22 +1,24 @@
 import React, { Component } from 'react';
+import { Platform } from 'react-native';
 import { string } from 'prop-types';
 import queryString from 'query-string';
 import uuid from 'uuid/v4';
 import keycloak from './keycloak';
 import KeycloakContext from '../context';
+import { Url, Storage } from '../../../../utils';
 
 class KeycloakProvider extends Component {
   attemptLogin = () => {
     if ( this.state.isAuthenticated ) return;
 
-    const loginUrl = this.createLoginUrl();
+    const LoginUrl = this.createLoginUrl();
+
+    LoginUrl.open();
 
     this.setState({
       isAuthenticating: true,
       error: null,
     });
-
-    window.location.href = loginUrl;
 
     return new Promise(( resolve, reject ) => {
       this.setState({ promise: { resolve, reject }});
@@ -78,7 +80,7 @@ class KeycloakProvider extends Component {
     sessionState: null,
     sessionNonce: null,
     error: null,
-    fetchingToken: false,
+    isFetchingToken: false,
     attemptLogin: this.attemptLogin,
     attemptRegister: this.attemptRegister,
     attemptLogout: this.attemptLogout,
@@ -86,7 +88,6 @@ class KeycloakProvider extends Component {
 
   componentDidMount = () => {
     this.checkForExistingState();
-
     this.checkForCallback();
   }
 
@@ -104,19 +105,20 @@ class KeycloakProvider extends Component {
 
     try {
       const { state, nonce, accessToken, refreshToken, accessTokenExpiresOn, refreshTokenExpiresOn } = JSON.parse( session );
-      const currentTime = new Date().getTime();
-      const accessTokenHasExpired = currentTime > accessTokenExpiresOn;
-      const refreshTokenHasExpired = currentTime > refreshTokenExpiresOn;
+      const accessTokenHasExpired = this.hasTokenExpired( accessTokenExpiresOn );
+      const refreshTokenHasExpired = this.hasTokenExpired( refreshTokenExpiresOn );
 
-      await this.asyncSetState({
-        sessionState: state,
-        sessionNonce: nonce,
-        accessToken: accessTokenHasExpired ? null : accessToken,
-        refreshToken: refreshTokenHasExpired ? null : refreshToken,
-        isAuthenticated: true,
-      });
+      if ( !refreshTokenHasExpired ) {
+        await this.asyncSetState({
+          sessionState: state,
+          sessionNonce: nonce,
+          accessToken: accessTokenHasExpired ? null : accessToken,
+          refreshToken,
+          isAuthenticated: true,
+        });
 
-      this.startTokenRefresh();
+        this.startTokenRefresh();
+      }
 
       resolve();
     }
@@ -191,11 +193,15 @@ class KeycloakProvider extends Component {
   }
 
   createLoginUrl = options => {
-    return this.createActionUrl( 'auth', options );
+    const url = this.createActionUrl( 'auth', options );
+
+    return new Url( url );
   }
 
   createRegisterUrl = options => {
-    return this.createActionUrl( 'registrations', options );
+    const url = this.createActionUrl( 'registrations', options );
+
+    return new Url( url );
   }
 
   createLogoutUrl = options => {
@@ -207,11 +213,15 @@ class KeycloakProvider extends Component {
       ...options,
     });
 
-    return `${realmUrl}/protocol/openid-connect/logout?${query}`;
+    const url = `${realmUrl}/protocol/openid-connect/logout?${query}`;
+
+    return new Url( url );
   }
 
   handleAuthSuccess = async code => {
     await this.asyncSetState({
+      isAuthenticating: false,
+      isRegistering: false,
       isAuthenticated: true,
     });
 
@@ -273,7 +283,7 @@ class KeycloakProvider extends Component {
       }),
     };
 
-    this.setState({ fetchingToken: true });
+    this.setState({ isFetchingToken: true });
 
     try {
       const response = await fetch( url, options );
@@ -287,7 +297,7 @@ class KeycloakProvider extends Component {
         this.handleTokenRefreshSuccess( responseJson );
     }
     catch ( error ) {
-      this.setState({ fetchingToken: false });
+      this.setState({ isFetchingToken: false });
 
       this.handleError( error );
     }
@@ -304,7 +314,7 @@ class KeycloakProvider extends Component {
       accessToken: access_token,
       accessTokenExpiresOn: currentTime + accessExpiresInSeconds,
       idToken: id_token,
-      fetchingToken: false,
+      isFetchingToken: false,
     });
 
     localStorage.setItem( 'kcAuth', JSON.stringify({
@@ -343,6 +353,12 @@ class KeycloakProvider extends Component {
     else {
       this.handleError( 'Unable to decode keycloak URL after returning from auth screen.' );
     }
+  }
+
+  hasTokenExpired( expiresOn ) {
+    const currentTime = new Date().getTime();
+
+    return currentTime > expiresOn;
   }
 
   render() {
