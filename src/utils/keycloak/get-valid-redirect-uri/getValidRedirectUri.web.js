@@ -1,25 +1,31 @@
 const getValidRedirectUri = ( options = {}) => {
-  const {
+  let {
     excludeSearch = false,
+    excludePathname = false,
   } = options;
+
+  const baseUrl = `${location.protocol}//${location.host}`;
 
   if (
     location.pathname === '/login' ||
     location.pathname === '/register' ||
     location.pathname === '/logout'
   ) {
-    const url = `${location.protocol}//${location.host}`;
-
-    if ( excludeSearch )
-      return url;
-
-    return `${url}${location.search}`;
+    excludePathname = true;
   }
 
-  if ( excludeSearch )
-    return location.href.split( '?' )[0];
+  if ( excludeSearch ) {
+    if ( excludePathname ) {
+      return baseUrl;
+    }
 
-  return location.href;
+    return `${baseUrl}${location.pathname}`;
+  }
+
+  if ( excludePathname )
+    return `${baseUrl}${location.search}`;
+
+  return `${baseUrl}${location.pathname}${location.search}`;
 };
 
 export default getValidRedirectUri;

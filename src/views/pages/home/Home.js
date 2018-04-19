@@ -6,7 +6,7 @@ class Home extends Component {
   render() {
     return (
       <KeycloakConsumer>
-        {({ isAuthenticated, accessToken, refreshToken, isAuthenticating, isRegistering, isFetchingToken }) => (
+        {({ isAuthenticated, accessToken, refreshToken, isAuthenticating, isRegistering, isFetchingToken, user }) => (
           <Layout>
             <Box justifyContent="center" alignItems="center" height="100%">
               <Text>Home</Text>
@@ -37,8 +37,15 @@ class Home extends Component {
                 <Text>Fetching token...</Text>
               ) : (
                 <Fragment>
-                  <Text>{accessToken || 'No access token'}</Text>
-                  <Text>{refreshToken || 'No refresh token'}</Text>
+                  <Text>{accessToken ? accessToken.substr( -20 ) : 'No access token'}</Text>
+                  <Text>{refreshToken ? refreshToken.substr( -20 ) : 'No refresh token'}</Text>
+
+                  {user && (
+                    <Fragment>
+                      <Text>{user.fullName}</Text>
+                      <Text>{user.email}</Text>
+                    </Fragment>
+                  )}
                 </Fragment>
               )}
             </Box>

@@ -51,8 +51,6 @@ class KeycloakProvider extends Component {
   attemptLogout = async () => {
     if ( !this.state.isAuthenticated ) return;
 
-    const LogoutUrl = this.createLogoutUrl();
-
     if ( this.state.refreshTimer )
       clearInterval( this.state.refreshTimer );
 
@@ -68,8 +66,11 @@ class KeycloakProvider extends Component {
         sessionState: null,
         sessionNonce: null,
         error: null,
+        user: {},
       }),
     ]);
+
+    const LogoutUrl = this.createLogoutUrl();
 
     LogoutUrl.open();
 
@@ -88,6 +89,7 @@ class KeycloakProvider extends Component {
     sessionState: null,
     sessionNonce: null,
     error: null,
+    user: {},
     isFetchingToken: false,
     attemptLogin: this.attemptLogin,
     attemptRegister: this.attemptRegister,
@@ -274,7 +276,11 @@ class KeycloakProvider extends Component {
     const url = `${realmUrl}/protocol/openid-connect/token`;
     const { authCode, refreshToken } = this.state;
     const { clientId } = this.props;
-    const redirectUrl = keycloakUtils.getValidRedirectUri({ excludeSearch: true });
+
+    const redirectUrl = keycloakUtils.getValidRedirectUri({
+      excludeSearch: true,
+      excludePathname: true,
+    });
 
     const grantType = code
       ? 'authorization_code'
@@ -325,13 +331,41 @@ class KeycloakProvider extends Component {
     const accessExpiresInSeconds = expires_in * 1000; // Convert from seconds to ms
     const refreshExpiresInSeconds = refresh_expires_in * 1000; // Convert from seconds to ms
 
-    await this.asyncSetState({
-      refreshToken: refresh_token,
-      refreshTokenExpiresOn: currentTime + refreshExpiresInSeconds,
-      accessToken: access_token,
-      accessTokenExpiresOn: currentTime + accessExpiresInSeconds,
-      idToken: id_token,
-    });
+    const setTokens = resolve => {
+      this.setState({
+        refreshToken: refresh_token,
+        refreshTokenExpiresOn: currentTime + refreshExpiresInSeconds,
+        accessToken: access_token,
+        accessTokenExpiresOn: currentTime + accessExpiresInSeconds,
+        idToken: id_token,
+      }, resolve );
+    }
+
+    const setUserData = ( resolve, reject ) => {
+      try {
+        const decodedIdToken = keycloakUtils.decodeToken( id_token );
+
+        this.setState({
+          user: {
+            email: decodedIdToken.email,
+            firstName: decodedIdToken.given_name,
+            lastName: decodedIdToken.family_name,
+            fullName: decodedIdToken.name,
+            username: decodedIdToken.preferred_username,
+            id: decodedIdToken.sub,
+          },
+        }, resolve );
+      }
+      catch ( error ) {
+        reject( error );
+      }
+    }
+
+    /* Wait for the setState operations to finish. */
+    await Promise.all([
+      new Promise( setTokens ),
+      new Promise( setUserData ),
+    ]);
 
     Storage.stringifyAndSet( 'kcAuth', {
       refreshToken: this.state.refreshToken,
